@@ -30,7 +30,7 @@ env.config()
 const app = express()
 
 const corsOptions = {
-    origin: 'http://localhost:5173', // Specify allowed origin(s)
+    origin: '*', // Specify allowed origin(s)
     methods: ['POST', 'GET', 'OPTIONS'], // Specify allowed method(s)
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Authorization'], // Specify allowed header(s)
   };cors(corsOptions),
@@ -83,6 +83,21 @@ app.get('/api/testing', (req, res) => {
     })
 })
 
+app.get('/api/test123', (req, res) => {
+    res.send("test123")
+})
+
+app.use((req, res, next) => {
+    if (process.env.DISABLE_AUTH === 'true') {
+      return next();
+    }
+  
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey !== process.env.API_KEY101) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    next();
+  });
 
 // app.use("/api/category") 
 app.use("/api/auth", authRoutes)
@@ -105,6 +120,8 @@ app.use('/api/recomments', recommentsRoutes)
 app.use('/api/option', optionRoutes)
 app.use('/api/poster', posterRoutes)
 
-app.listen(8800, () => {
-    console.log("Connected")
-})
+// app.listen(8800, () => {
+//     console.log("Connected")
+// })
+
+export default app;
